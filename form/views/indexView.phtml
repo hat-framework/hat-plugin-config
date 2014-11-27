@@ -1,0 +1,22 @@
+<?php
+
+    $this->Html->LoadBowerComponent(array(
+        'angular/angular.min',
+        'angular-route/angular-route.min',
+    ));
+    $location = "/form/app";
+    $this->Html->LoadPlugin('usuario', array(
+        "$location/app.js",
+        "$location/js/formCTRL.js",
+        "$location/js/indexCTRL.js",
+        "$location/js/insertCTRL.js",
+        "$location/menu/menuCTRL.js",
+    ), true);
+    
+?>
+<div id="mainContainer" ng-app="usuario_formApp">
+    <div class="col-xs-3" ng-controller="config_menuCTRL"><?php 
+    include \classes\Classes\Registered::getPluginLocation('usuario', true). "/form/app/menu/menu.html";
+    ?></div>
+    <div id="contentArea" class="col-xs-9 pull-right" ng-view></div>
+</div>
