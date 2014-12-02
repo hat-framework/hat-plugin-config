@@ -3,16 +3,16 @@ class config_formModel extends \classes\Model\Model{
     public $tabela = "config_form";
     public $pkey   = 'cod';
     
-    public function saveData($post, $form, $cod_usuario){
+    public function saveData($post, $form, $cod_usuario, $id = ''){
         $item = $this->getItem($form);
         $data = json_decode($item['form_data'],true);
         if(false === $this->validateData($data, $post)){return false;}
         $this->associaData($data, $post);
-        $bool = $this->LoadModel('config/response', 'resp')->inserir(array(
-            'login'         => $cod_usuario,
-            'form'          => $form,
-            'form_response' => $post,
-        ));
+        $dados = array('login'=> $cod_usuario,'form'=> $form,'form_response' => $post);
+        $this->LoadModel('config/response', 'resp');
+        if($id === ""){$bool = $this->resp->inserir($dados);}
+        else{$bool = $this->resp->editar($id, $dados);}
+        $this->resp->setOneMain($form, $cod_usuario);
         $this->setMessages($this->resp->getMessages());
         return $bool;
     }

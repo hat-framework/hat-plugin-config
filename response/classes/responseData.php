@@ -44,5 +44,12 @@ class config_responseData extends \classes\Model\DataModel{
 	    'grid'    => true,
 	    'display' => true,
         ),
-	    'button'     => array('button' => 'Gravar Response'),);
+        
+        'main' => array(
+	    'name'     => 'Principal',
+	    'type'     => 'bit',
+	    'notnull' => true,
+            'default' => 0
+        ),
+	'button' => array('button' => 'Gravar Response'),);
 }

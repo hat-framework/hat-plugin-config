@@ -23,10 +23,19 @@ class userConfigFormWidget extends \classes\Component\widget{
         if(!method_exists($this, $method)){throw new InvalidArgumentException("O método $method não existe!");}
         $this->$method();
     }
+    private $itemId = '';
+    public function setItemId($itemId){
+        $this->itemId = $itemId;
+    }
     
     private $formId = '';
     public function setFormId($formId){
         $this->formId = $formId;
+    }
+    
+    private $action = '';
+    public function setAction($action){
+        $this->action = $action;
     }
     
     private $groupId = '';
@@ -49,35 +58,52 @@ class userConfigFormWidget extends \classes\Component\widget{
     
     private function drawDirectdata(){
         $this->multipleHeader();
-        $data = json_decode($this->form['form_data'],true);
-        $item = $this->LoadModel('config/response', 'resp')->getResponse($this->formId, $this->codUsuario);
-        $this->form($data, $item);
-        $this->grid($data, $item);
+        $data         = json_decode($this->form['form_data'],true);
+        $item         = $this->LoadModel('config/response', 'resp')->getResponse($this->formId, $this->codUsuario);
+        $this->action = ($this->action === "")?'grid':$this->action;
+        if(empty($item)){$action = 'form';}
+        if(!method_exists($this, $this->action)){$this->action = 'grid';}
+        $action = $this->action;
+        $this->$action($data, $item);
     }
     
     private function multipleHeader(){
         if($this->form['multiple'] != 1){return;}
-        $link = $this->LoadResource('html', 'html')->getLink(CURRENT_URL);
+        $link1 = $this->LoadResource('html', 'html')->getLink("config/group/form/$this->groupId/$this->formId/grid", false, true);
+        $link2 = $this->LoadResource('html', 'html')->getLink("config/group/form/$this->groupId/$this->formId/form", false, true);
+        $active_form = ($this->action === 'form')?'active':'';
+        $active_grid = ($this->action === 'grid')?'active':'';
         echo "<div style='padding:0; margin-bottom:10px;'>
             <ul class='btn-group ' style='padding:0; margin:0;'>
-                <li class='btn btn-default btn-lg' style='margin-right:10px;'>
-                    <a href='$link/list'><i class='fa fa-list'></i> Listar</a>
+                <li class='btn btn-default btn-lg $active_grid' style='margin-right:10px;'>
+                    <a href='$link1'><i class='fa fa-list'></i> Listar</a>
                 </li>
-                <li class='btn btn-default btn-lg' style='margin-right:10px;'>
-                    <a href='$link/add'><i class='fa fa-plus'></i> Adicionar</a>
+                <li class='btn btn-default btn-lg $active_form' style='margin-right:10px;'>
+                    <a href='$link2'><i class='fa fa-plus'></i> Adicionar</a>
                 </li>
             </ul>
         </div>";
     }
     
+    private function edit($dados, $response){
+        if($this->itemId === ""){Redirect("config/group/form/$this->groupId/$this->formId");}
+        foreach($response as $item){
+            if(!isset($item['cod']) || $this->itemId != $item['cod']){continue;}
+            $item = json_decode($item['form_response'],true);
+            break;
+        }
+        $this->form($dados, array($item));
+    }
+    
     private function form($data, $item){
         if(!is_array($data) || empty($data)){return;}
-        $item = ($this->form['multiple'] == 1)?array():array_shift($item);
-        echo "<div class='col-xs-12 col-sm-12 col-md-4 col-lg-4 pull-left' style='padding:0px'>";
+        $item = ($this->form['multiple'] == '1' && $this->action === 'form')?array():array_shift($item);
+        $key  = (isset($item['cod']))?$item['cod']:$this->itemId;
+        echo "<div style='padding:0px'>";
             echo "<div class='panel panel-default'>";
                 echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
                 echo "<div class='panel-body'>";
-                    $this->LoadResource('formulario', 'frm')->NewForm($data,$item,array(),false, "config/form/save/$this->formId/$this->codUsuario");
+                    $this->LoadResource('formulario', 'frm')->NewForm($data,$item,array(),true, "config/form/save/$this->formId/$this->codUsuario/$key");
                 echo "</div>";
             echo "</div>";
         echo "</div>";
@@ -85,30 +111,11 @@ class userConfigFormWidget extends \classes\Component\widget{
     
     private function grid($dados, $response){
         if($this->form['multiple'] != 1){return;}
-        $header = array();
-        foreach($dados as $name => $arr){
-            if(!isset($arr['name'])) {continue;}
-            $header[] = $arr['name'];
-        }
-        $header[] = "Opções"; 
-        $i = 0;
-        $table = array();
-        $comp  = new classes\Component\Component();
-        foreach($response as $item){
-            $tb = array();
-            $item = json_decode($item['form_response'],true);
-            foreach($item as $name => $valor){
-                if(!array_key_exists($name, $dados)){continue;}
-                $val = $comp->formatType($name, $dados, $valor, $item);
-                $tb[$name] = $val;
-            }
-            $tb['action'] = "<a href='/#edit'><i class='fa fa-pencil'></i></a><a href='/#drop'><i class='fa fa-close'></i></a>";
-            $table[$i] = $tb;
-            $i++;
-        }
-        
+        $header = $this->mountHeader($dados);
+        $table  = $this->mountGrid($dados, $response);
+        if(empty($table)){Redirect("config/group/form/$this->groupId/$this->formId/form");}
         echo "<style>.opcoes{width:60px;}</style>";
-        echo "<div class='col-xs-12 col-sm-12 col-md-8 col-lg-8 pull-right' style='padding:0px'>";
+        echo "<div style='padding:0px'>";
             echo "<div class='panel panel-default'>";
                 echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
                 echo "<div class='panel-body'>";
@@ -116,6 +123,43 @@ class userConfigFormWidget extends \classes\Component\widget{
                 echo "</div>";
             echo "</div>";
         echo "</div>";
+    }
+    
+    private function mountHeader($dados){
+        $header = array();
+        foreach($dados as $arr){
+            if(!isset($arr['name'])) {continue;}
+            $header[] = $arr['name'];
+        }
+        $header[] = "Principal"; 
+        $header[] = "Opções"; 
+        return $header;
+    }
+    
+    private function mountGrid($dados, $response){
+        $i = 0;
+        $table  = array();
+        $comp   = new classes\Component\Component();
+        $this->LoadResource('html', 'html');
+        foreach($response as $item){
+            $tb   = array();
+            $key  = $item['cod'];
+            $data = json_decode($item['form_response'],true);
+            foreach($data as $name => $valor){
+                if(!array_key_exists($name, $dados)){continue;}
+                $val = $comp->formatType($name, $dados, $valor, $data);
+                $tb[$name] = $val;
+            }
+            
+            $link1  = $this->html->getLink("config/form/setmain/$this->formId/$this->codUsuario/$key"     , false, true);
+            $link2  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/edit/$key", false, true);
+            $link3  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/drop/$key", false, true);
+            $tb['principal'] = (!isset($item['main']) || $item['main'] == '0')?"<a href='$link1'>Tornar Principal</a>":"<i class='fa fa-check'></i>";
+            $tb['action'] = "<a href='$link2'><i class='fa fa-pencil'></i></a><a href='$link3'><i class='fa fa-close'></i></a>";
+            $table[$i] = $tb;
+            $i++;
+        }
+        return $table;
     }
     
 }

@@ -86,19 +86,6 @@ class configInstall extends classes\Classes\InstallPlugin{
                 'grid'    => true,
                 'display' => true,
             ),
-             'padrao' => array(
-                'name'     => 'Padrão',
-                'type'     => 'enum',
-                'default' => 'n',
-                'options' => array(
-                    's' => 's',
-                    'n' => 'n',
-                ),
-                'feature' => 'USUARIO_MULTI_ADRESS',
-                'notnull' => true,
-                'grid'    => true,
-                'display' => true,
-            ),
             
             'button' => array('button' => "Salvar Endereço")
         ),
@@ -122,7 +109,7 @@ class configInstall extends classes\Classes\InstallPlugin{
             ),
             
             'numero' => array(
-                'name'     => 'Telefone Fixo',
+                'name'     => 'Número',
                 'type'     => 'varchar',
                 'size'     => '11',
                 'especial' => 'telefone',
