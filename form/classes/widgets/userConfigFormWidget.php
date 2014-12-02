@@ -60,9 +60,12 @@ class userConfigFormWidget extends \classes\Component\widget{
         $this->multipleHeader();
         $data         = json_decode($this->form['form_data'],true);
         $item         = $this->LoadModel('config/response', 'resp')->getResponse($this->formId, $this->codUsuario);
-        $this->action = ($this->action === "")?'grid':$this->action;
-        if(empty($item)){$action = 'form';}
-        if(!method_exists($this, $this->action)){$this->action = 'grid';}
+        
+        if($this->form['multiple'] == 1){
+            $this->action = ($this->action === "")?'grid':$this->action;
+            if(empty($item)){$action = 'form';}
+            if(!method_exists($this, $this->action)){$this->action = 'grid';}
+        }else{$this->action = 'form';}
         $action = $this->action;
         $this->$action($data, $item);
     }
@@ -99,6 +102,10 @@ class userConfigFormWidget extends \classes\Component\widget{
         if(!is_array($data) || empty($data)){return;}
         $item = ($this->form['multiple'] == '1' && $this->action === 'form')?array():array_shift($item);
         $key  = (isset($item['cod']))?$item['cod']:$this->itemId;
+        if(isset($item['form_response']) && !is_array($item['form_response'])){
+            $item = json_decode($item['form_response'],true);
+        }
+        
         echo "<div style='padding:0px'>";
             echo "<div class='panel panel-default'>";
                 echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";

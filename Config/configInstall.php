@@ -19,10 +19,8 @@ class configInstall extends classes\Classes\InstallPlugin{
         $this->LoadModel('config/form', 'frm')->importDataFromArray(array(
             array('cod'=>'email'  , 'group'=>'pessoal','title'=>'Email'    ,'icon'=>'fa fa-envelope'  ,'ordem' =>'1','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'email', 'form_data' => '', 'multiple'=>0),
             array('cod'=>'senha'  , 'group'=>'pessoal','title'=>'Senha'    ,'icon'=>'fa fa-lock'      ,'ordem' =>'2','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'senha'),
-            array('cod'=>'phone'  , 'group'=>'pessoal','title'=>'Telefone' ,'icon'=>'fa fa-phone'     ,'ordem' =>'3','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'telefone'),
-            array('cod'=>'address', 'group'=>'pessoal','title'=>'Endereço' ,'icon'=>'fa fa-map-marker','ordem' =>'4','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'endereco'),
-            array('cod'=>'phone2' , 'group'=>'pessoal','title'=>'Telefone' ,'icon'=>'fa fa-phone'     ,'ordem' =>'3','type' => 'directdata', 'form_data' => $phone  , 'multiple'=>1),
-            array('cod'=>'address2', 'group'=>'pessoal','title'=>'Endereço2','icon'=>'fa fa-map-marker','ordem' =>'4','type' => 'directdata', 'form_data' => $address, 'multiple'=>1),
+            array('cod'=>'phone'  , 'group'=>'pessoal','title'=>'Telefone' ,'icon'=>'fa fa-phone'     ,'ordem' =>'3','type' => 'directdata', 'form_data' => $phone  , 'multiple'=>1),
+            array('cod'=>'address', 'group'=>'pessoal','title'=>'Endereço' ,'icon'=>'fa fa-map-marker','ordem' =>'4','type' => 'directdata', 'form_data' => $address, 'multiple'=>1),
             
             array('cod'=>'conta'  , 'group'=>'notify' , 'title'=>'Notificações da Conta'  ,'ordem' =>'1','icon'=>'fa fa-user'      ,'type' => 'directdata', 'form_data' => $conta),
             array('cod'=>'mercado', 'group'=>'notify' , 'title'=>'Atualizações do mercado','ordem' =>'2','icon'=>'fa fa-line-chart','type' => 'directdata', 'form_data' => $mercado)
