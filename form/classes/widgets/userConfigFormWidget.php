@@ -116,7 +116,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         echo "</div>";
     }
     
-    private function grid($dados, $response){
+    private function grid2($dados, $response){
         if($this->form['multiple'] != 1){return;}
         $header = $this->mountHeader($dados);
         $table  = $this->mountGrid($dados, $response);
@@ -132,41 +132,97 @@ class userConfigFormWidget extends \classes\Component\widget{
         echo "</div>";
     }
     
+    private function grid($dados, $response){
+        if($this->form['multiple'] != 1){return;}
+        $header = $this->mountHeader($dados);
+        $table  = $this->mountGrid($dados, $response);
+        if(empty($table)){Redirect("config/group/form/$this->groupId/$this->formId/form");}
+        echo "<style>.opcoes{width:60px;}</style>";
+        echo "<div style='padding:0px'>";
+            echo "<div class='panel panel-default'>";
+                echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
+                echo "<div class='panel-body'>";
+                    foreach($table as $arr){
+                        echo '<div class="bs-callout bs-callout-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-top: 0;">';
+                            echo "<table class='table table-hover'>";
+                            foreach($header as $name){
+                                $val = array_shift($arr);
+                                if(trim($val) === ""){continue;}
+                                echo "<tr>";
+                                     if((trim($name) !== "")){
+                                        echo "<td><b>{$name}: </b></td>";
+                                        $sp = "";
+                                     }
+                                     else {$sp = "colspan='2'";}
+                                     echo "<td $sp>$val</td>";
+                                echo "</tr>";
+                            }
+                            echo "</table>";
+                        echo "</div>";
+                    }
+                echo "</div>";
+            echo "</div>";
+        echo "</div>";
+    }
+    
     private function mountHeader($dados){
         $header = array();
         foreach($dados as $arr){
             if(!isset($arr['name'])) {continue;}
             $header[] = $arr['name'];
         }
-        $header[] = "Principal"; 
-        $header[] = "Opções"; 
+        //$header[] = "Principal"; 
+        $header[] = ""; 
         return $header;
     }
     
     private function mountGrid($dados, $response){
         $i = 0;
-        $table  = array();
-        $comp   = new classes\Component\Component();
+        $table      = array();
+        $this->comp = new classes\Component\Component();
         $this->LoadResource('html', 'html');
         foreach($response as $item){
-            $tb   = array();
-            $key  = $item['cod'];
-            $data = json_decode($item['form_response'],true);
-            foreach($data as $name => $valor){
-                if(!array_key_exists($name, $dados)){continue;}
-                $val = $comp->formatType($name, $dados, $valor, $data);
-                $tb[$name] = $val;
-            }
-            
-            $link1  = $this->html->getLink("config/form/setmain/$this->formId/$this->codUsuario/$key"     , false, true);
-            $link2  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/edit/$key", false, true);
-            $link3  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/drop/$key", false, true);
-            $tb['principal'] = (!isset($item['main']) || $item['main'] == '0')?"<a href='$link1'>Tornar Principal</a>":"<i class='fa fa-check'></i>";
-            $tb['action'] = "<a href='$link2'><i class='fa fa-pencil'></i></a><a href='$link3'><i class='fa fa-close'></i></a>";
+            $tb = $this->getRow($item, $dados);
+            if(empty($tb)){continue;}
             $table[$i] = $tb;
             $i++;
         }
         return $table;
+    }
+    
+    private function getRow($item, $dados){
+        $tb   = array();
+        $key  = $item['cod'];
+        $data = json_decode($item['form_response'],true);
+        foreach($data as $name => $valor){
+            if(!array_key_exists($name, $dados)){continue;}
+            $tb[$name] = $this->formatType($name, $dados, $valor, $data);
+        }
+        if(empty($tb)){return array();}
+        $link1  = $this->html->getLink("config/form/setmain/$this->formId/$this->codUsuario/$key"     , false, true);
+        $link2  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/edit/$key", false, true);
+        $link3  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/drop/$key", false, true);
+        $act          = (!isset($item['main']) || $item['main'] == '0')?
+                "<a href='$link1' class='btn btn-info btn-block'>Tornar Principal</a>":
+                "<a class='btn btn-default btn-block disabled'><i class='fa fa-check'></i> Principal</a>";
+        $tb['action'] = "$act "
+                . "<a href='$link2' class='btn btn-warning btn-block'>"
+                    . "<i class='fa fa-pencil'></i>Editar"
+                . "</a>"
+                . "<a href='$link3' class='btn btn-danger btn-block'>"
+                    . "<i class='fa fa-close'></i>Apagar"
+                . "</a>";
+        return $tb;
+    }
+    
+    private function formatType($name, $dados, $valor, $data){
+        $val = $this->comp->formatType($name, $dados, $valor, $data);
+        if(!array_key_exists('fkey', $dados[$name])){return $val;}
+        extract($dados[$name]['fkey']);
+        if($this->LoadModel($model, 'md', false) === null){return $valor;}
+        $select = $this->md->selecionar($keys, "{$keys[0]}='$valor'", 1);
+        $link   = $this->html->getLink("$model/show/{$select[0][$keys[0]]}");
+        return "<a href='$link' target='_BLANK$link'>{$select[0][$keys[1]]}</a>";
     }
     
 }

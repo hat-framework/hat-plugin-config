@@ -10,7 +10,7 @@ class config_responseModel extends \classes\Model\Model{
     }
     
     public function validate() {
-        print_rd($_POST);
+        //print_rd($_POST);
         foreach($this->post['form_response'] as &$resp){
             if(substr($resp, 0, 5) === "FUNC_"){$resp = str_replace('FUNC_', '', $resp);}
         }
