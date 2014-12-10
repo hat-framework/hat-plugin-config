@@ -57,7 +57,6 @@ class userConfigFormWidget extends \classes\Component\widget{
     }
     
     private function drawDirectdata(){
-        $this->multipleHeader();
         $data         = json_decode($this->form['form_data'],true);
         $item         = $this->LoadModel('config/response', 'resp')->getResponse($this->formId, $this->codUsuario);
         
@@ -66,6 +65,7 @@ class userConfigFormWidget extends \classes\Component\widget{
             if(empty($item)){$action = 'form';}
             if(!method_exists($this, $this->action)){$this->action = 'grid';}
         }else{$this->action = 'form';}
+        $this->multipleHeader();
         $action = $this->action;
         $this->$action($data, $item);
     }
@@ -77,15 +77,9 @@ class userConfigFormWidget extends \classes\Component\widget{
         $active_form = ($this->action === 'form')?'active':'';
         $active_grid = ($this->action === 'grid')?'active':'';
         echo "<div style='padding:0; margin-bottom:10px;'>
-            <ul class='btn-group ' style='padding:0; margin:0;'>
-                <li class='btn btn-default btn-lg $active_grid' style='margin-right:10px;'>
-                    <a href='$link1'><i class='fa fa-list'></i> Listar</a>
-                </li>
-                <li class='btn btn-default btn-lg $active_form' style='margin-right:10px;'>
-                    <a href='$link2'><i class='fa fa-plus'></i> Adicionar</a>
-                </li>
-            </ul>
-        </div>";
+                    <a href='$link1' class='btn btn-default btn-lg $active_grid'><i class='fa fa-list'></i> Listar</a>
+                    <a href='$link2' class='btn btn-info btn-lg $active_form'><i class='fa fa-plus'></i> Adicionar</a>
+              </div>";
     }
     
     private function edit($dados, $response){
@@ -107,7 +101,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         }
         
         echo "<div style='padding:0px'>";
-            echo "<div class='panel panel-default'>";
+            echo "<div class='panel panel-info'>";
                 echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
                 echo "<div class='panel-body'>";
                     $this->LoadResource('formulario', 'frm')->NewForm($data,$item,array(),true, "config/form/save/$this->formId/$this->codUsuario/$key");
@@ -115,7 +109,7 @@ class userConfigFormWidget extends \classes\Component\widget{
             echo "</div>";
         echo "</div>";
     }
-    
+    /*
     private function grid2($dados, $response){
         if($this->form['multiple'] != 1){return;}
         $header = $this->mountHeader($dados);
@@ -123,14 +117,14 @@ class userConfigFormWidget extends \classes\Component\widget{
         if(empty($table)){Redirect("config/group/form/$this->groupId/$this->formId/form");}
         echo "<style>.opcoes{width:60px;}</style>";
         echo "<div style='padding:0px'>";
-            echo "<div class='panel panel-default'>";
+            echo "<div class='panel panel-success'>";
                 echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
                 echo "<div class='panel-body'>";
                     $this->LoadResource('html/table', 'tb')->draw($table,$header);
                 echo "</div>";
             echo "</div>";
         echo "</div>";
-    }
+    }*/
     
     private function grid($dados, $response){
         if($this->form['multiple'] != 1){return;}
@@ -139,22 +133,20 @@ class userConfigFormWidget extends \classes\Component\widget{
         if(empty($table)){Redirect("config/group/form/$this->groupId/$this->formId/form");}
         echo "<style>.opcoes{width:60px;}</style>";
         echo "<div style='padding:0px'>";
-            echo "<div class='panel panel-default'>";
+            echo "<div class='panel panel-info'>";
                 echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
                 echo "<div class='panel-body'>";
                     foreach($table as $arr){
-                        echo '<div class="bs-callout bs-callout-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-top: 0;">';
+                        echo '<div class="bs-callout bs-callout-info col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-top: 0;">';
                             echo "<table class='table table-hover'>";
                             foreach($header as $name){
                                 $val = array_shift($arr);
                                 if(trim($val) === ""){continue;}
                                 echo "<tr>";
                                      if((trim($name) !== "")){
-                                        echo "<td><b>{$name}: </b></td>";
-                                        $sp = "";
+                                        echo "<td colspan='2'><b>{$name}: </b><br/>$val</td>";
                                      }
-                                     else {$sp = "colspan='2'";}
-                                     echo "<td $sp>$val</td>";
+                                     else {echo "<td colspan='2'>$val</td>";}
                                 echo "</tr>";
                             }
                             echo "</table>";

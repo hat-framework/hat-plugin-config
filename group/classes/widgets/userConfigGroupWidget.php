@@ -44,7 +44,7 @@ class userConfigGroupWidget extends \classes\Component\widget{
         $i++;
         $class    = "collapse$i";
         $collapse = ($this->current_group === $cod)?"collapsed":"collapse";
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
             echo '<div class="panel-heading">';
                 echo "<h4 class='panel-title' style='cursor: pointer' data-toggle='collapse' data-parent='#accordion' href='#$class'>";
                     echo "<a><i class='$icon'></i> $title</a>";
@@ -62,9 +62,9 @@ class userConfigGroupWidget extends \classes\Component\widget{
     
     private function drawSubItem($cod_group, $subitem){
         extract($subitem);
-        $active   = ($this->current_form === $cod)?"active":"";
+        $active   = ($this->current_form === $cod)?"btn-info active":"";
         $url = $this->Html->getLink("config/group/form/$cod_group/$cod");
-        echo "<a href='$url' class='col-xs-12 btn $active' style=''><h5><i class='$icon'></i> $title</h5></a>";
+        echo "<a href='$url' class='col-xs-12 btn btn-block $active' style=''><h5><i class='$icon'></i> $title</h5></a>";
     }
     
 }
