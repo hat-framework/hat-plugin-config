@@ -46,4 +46,14 @@ class config_formModel extends \classes\Model\Model{
             unset($post[$tname]);
         }
     }
+    
+    public function prepareFormData(&$form){
+        if(isset($form['form_data']) && is_array($form['form_data'])){
+            $form['form_data'] = json_encode($form['form_data'], JSON_UNESCAPED_UNICODE);
+        }
+        foreach($this->dados as $name => $val){
+            if(isset($val['pkey']) && $val['pkey'] === true){continue;}
+            $form[$name] = isset($form[$name])?$form[$name]:"";
+        }
+    }
 }

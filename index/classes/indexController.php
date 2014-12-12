@@ -13,4 +13,8 @@ class indexController extends \classes\Controller\Controller{
         $out  = $this->LoadModel('config/response', 'resp')->requestData($var, $user);
         echo json_encode($out);
     }
+    
+    public function detect(){
+        $this->LoadClassFromPlugin('config/form/formDetector', 'fd')->importData();
+    }
 }
