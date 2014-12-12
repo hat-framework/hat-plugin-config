@@ -1,0 +1,9 @@
+<?php
+
+$gui = new \classes\Component\GUI();
+
+$gui->opendiv('filt', 'col-xs-10 col-xs-offset-1');
+    classes\Component\widget::executeWidgets(array(
+       'config/form/widgets/userConfigFormWidget' => array('formId'=>$form,'groupId'=>$group,'action'=>$action,'itemId'=>$itemId),
+    ));
+$gui->closediv();

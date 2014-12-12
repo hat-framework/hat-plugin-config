@@ -17,6 +17,17 @@ class config_formModel extends \classes\Model\Model{
         return $bool;
     }
     
+    public function getExistent($forms){
+        if(!is_array($forms)){$forms = array($forms);}
+        $in  = implode("','", $forms);
+        $res = $this->selecionar(array('cod'), "cod IN('$in')");
+        $out = array();
+        foreach($res as $r){
+            $out[] = $r['cod'];
+        }
+        return $out;
+    }
+    
     private function validateData($data, &$post){
         if(!$this->LoadResource("formulario/validator", "pval")->validate($data, $post)){
             $this->setSimpleMessage('validation', $this->pval->getMessages());

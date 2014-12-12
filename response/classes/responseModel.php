@@ -43,4 +43,48 @@ class config_responseModel extends \classes\Model\Model{
             UPDATE $this->tabela SET main = 1 WHERE login='$codUsuario' AND form='$formId' AND cod='$id'
         ");
     }
+    
+    /**
+     * Request user data
+     * @param mixed $formsid can be array or string
+     * @param int $user cod of user
+     * @return array empty array if data doesn't exists
+     */
+    public function requestData($formsid, $user = ""){
+        if($user === ""){$user = usuario_loginModel::CodUsuario();}
+        if(!is_array($formsid)){$formsid = array($formsid);}
+        $query  = implode("','", $formsid);
+        $result = $this->selecionar(array('form_response','main','form'), "login='$user' AND form IN('$query')");
+        
+        $out    = array();
+        if(!empty($result)){
+            foreach($result as $res){
+                if(!isset($out[$res['form']])){$out[$res['form']] = array();}
+                $res['form_response']          = json_decode($res['form_response'], true);
+                $res['form_response']['_main'] = $res['main'];
+                $out[$res['form']][] = $res['form_response'];
+            }
+        }
+        $need = array();
+        foreach($formsid as $form){
+            if(!array_key_exists($form, $out)){
+                $need[] = $form;
+            }
+        }
+        $exist = $this->LoadModel('config/form', 'form')->getExistent($need);
+        $link  = base64_encode($this->LoadResource('html','html')->getLink(CURRENT_URL, false, true));
+        $item  = base64_encode(implode("-", $exist));
+        if(!empty($exist)){Redirect("config/group/request/&_request=$item&_credirect=$link");}
+        return $out;
+    }
 }
+
+/**
+ * 
+ http://hat/config/group/request/pessoal/pessoal_phone/form
+ * &_redirect=config/group/request/pessoal/pessoal_address
+ * &_index=1
+ * &_request=cGVzc29hbF9waG9uZS1wZXNzb2FsX2FkZHJlc3MtcGVzc29hbF9lbWFpbA==
+ * &_request=cGVzc29hbF9waG9uZS1wZXNzb2FsX2FkZHJlc3MtcGVzc29hbF9lbWFpbA==
+ * &_credirect=Y29uZmlnL2luZGV4L3JlcXVlc3Qv
+ */

@@ -8,22 +8,23 @@ class configInstall extends classes\Classes\InstallPlugin{
     );
     public function install(){
         $this->LoadModel('config/group', 'gr')->importDataFromArray(array(
-            array('cod'=>'pessoal','title'=>'Dados Pessoais','icon'=>'fa fa-user','ordem' =>'1'),
-            array('cod'=>'notify' ,'title'=>'Notificações' ,'icon'=>'fa fa-globe','ordem' =>'2')
+            array('cod'=>'acesso' ,'title'=>'Dados de Acesso','icon'=>'fa fa-lock','ordem' =>'1'),
+            array('cod'=>'pessoal','title'=>'Dados Pessoais' ,'icon'=>'fa fa-user','ordem' =>'2'),
+            array('cod'=>'notify' ,'title'=>'Notificações'   ,'icon'=>'fa fa-globe','ordem' =>'3')
         ));
         
-        $mercado = json_encode($this->formdata['mercado'], JSON_UNESCAPED_UNICODE);
         $conta   = json_encode($this->formdata['conta']  , JSON_UNESCAPED_UNICODE);
         $phone   = json_encode($this->formdata['phone']  , JSON_UNESCAPED_UNICODE);
         $address = json_encode($this->formdata['address'], JSON_UNESCAPED_UNICODE);
+        $mail    = json_encode($this->formdata['mail']   , JSON_UNESCAPED_UNICODE);
         $this->LoadModel('config/form', 'frm')->importDataFromArray(array(
-            array('cod'=>'email'  , 'group'=>'pessoal','title'=>'Email'    ,'icon'=>'fa fa-envelope'  ,'ordem' =>'1','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'email', 'form_data' => '', 'multiple'=>0),
-            array('cod'=>'senha'  , 'group'=>'pessoal','title'=>'Senha'    ,'icon'=>'fa fa-lock'      ,'ordem' =>'2','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'senha'),
-            array('cod'=>'phone'  , 'group'=>'pessoal','title'=>'Telefone' ,'icon'=>'fa fa-phone'     ,'ordem' =>'3','type' => 'directdata', 'form_data' => $phone  , 'multiple'=>1),
-            array('cod'=>'address', 'group'=>'pessoal','title'=>'Endereço' ,'icon'=>'fa fa-map-marker','ordem' =>'4','type' => 'directdata', 'form_data' => $address, 'multiple'=>1),
+            array('cod'=>'acesso_email'   , 'group'=>'acesso' ,'title'=>'Email'             ,'icon'=>'fa fa-envelope'  ,'ordem' =>'1','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'email', 'form_data' => '', 'multiple'=>0),
+            array('cod'=>'acesso_senha'   , 'group'=>'acesso' ,'title'=>'Senha'             ,'icon'=>'fa fa-lock'      ,'ordem' =>'2','type' => 'component' , 'ref' => 'usuario/login/alterar', 'method'=>'senha'),
+            array('cod'=>'pessoal_phone'  , 'group'=>'pessoal','title'=>'Telefone'          ,'icon'=>'fa fa-phone'     ,'ordem' =>'3','type' => 'directdata', 'form_data' => $phone  , 'multiple'=>1),
+            array('cod'=>'pessoal_address', 'group'=>'pessoal','title'=>'Endereço'          ,'icon'=>'fa fa-map-marker','ordem' =>'4','type' => 'directdata', 'form_data' => $address, 'multiple'=>1),
+            array('cod'=>'pessoal_email'  , 'group'=>'pessoal','title'=>'Email Alternativo' ,'icon'=>'fa fa-map-marker','ordem' =>'5','type' => 'directdata', 'form_data' => $mail   , 'multiple'=>1),
             
-            array('cod'=>'conta'  , 'group'=>'notify' , 'title'=>'Notificações da Conta'  ,'ordem' =>'1','icon'=>'fa fa-user'      ,'type' => 'directdata', 'form_data' => $conta),
-            array('cod'=>'mercado', 'group'=>'notify' , 'title'=>'Atualizações do mercado','ordem' =>'2','icon'=>'fa fa-line-chart','type' => 'directdata', 'form_data' => $mercado)
+            array('cod'=>'notify_conta'   , 'group'=>'notify' , 'title'=>'Notificações da Conta'  ,'ordem' =>'1','icon'=>'fa fa-user'      ,'type' => 'directdata', 'form_data' => $conta),
         ));
         return true;
     }
@@ -118,6 +119,31 @@ class configInstall extends classes\Classes\InstallPlugin{
             
             'button' => array('button' => "Salvar Telefone")
         ),
+        'mail'   => array(
+            'type' => array(
+                'name'     => 'Tipo',
+                'type'     => 'enum',
+                'default'  => 'p',
+                'options'  => array(
+                    'p' => "Pessoal",
+                    't' => "Trabalho"
+                ),
+                'notnull'  => true
+            ),
+            
+            'email' => array(
+                'name'     => 'Email',
+                'type'     => 'varchar',
+                'display'  => true,
+                'size'     => '64',
+                'notnull'  => true,
+                'grid'     => true,
+                'especial' => 'email',
+                'description' => "Este email será utilizado para entrarmos em contato com você (Não será utilizado para fazer login)",
+             ),
+            
+            'button' => array('button' => "Salvar Email")
+        ),
         'conta'   => array(
             'modificacao' => array(
                 'name'        => 'Receber notificação de alteração de Email e Senha',
@@ -130,42 +156,6 @@ class configInstall extends classes\Classes\InstallPlugin{
             'dados' => array(
                 'name'        => 'Receber notificação de alteração Alteração de dados',
                 'description' => 'Receber notificações por email se meus dados (exceto email e senha) forem alterados no site',
-                'type'        => 'bit',
-                'default'     => '1',
-                'notnull'     => true
-            ),
-            
-            'button' => array('button' => "Salvar Opção")
-        ),
-        'mercado' => array(
-            
-            'novas_empresas' => array(
-                'name'        => 'Notificação de Novas Empresas',
-                'description' => 'Receber por email quando novas empresas fizerem IPO',
-                'type'        => 'bit',
-                'default'     => '1',
-                'notnull'     => true
-            ),
-            
-            'balancos' => array(
-                'name'        => 'Notificação de Balanços',
-                'description' => 'Receber por email quando saírem novos Balanços das empresas listadas na bolsa',
-                'type'        => 'bit',
-                'default'     => '1',
-                'notnull'     => true
-            ),
-            
-            'dividendos' => array(
-                'name'        => 'Notificação de Dividendos',
-                'description' => 'Receber por email quando saírem novos dividendos das empresas listadas na bolsa',
-                'type'        => 'bit',
-                'default'     => '1',
-                'notnull'     => true
-            ),
-            
-            'proventos' => array(
-                'name'        => 'Notificação de Proventos',
-                'description' => 'Receber por email quando as empresas lançarem novos proventos (subscrição, bonificação, etc)',
                 'type'        => 'bit',
                 'default'     => '1',
                 'notnull'     => true

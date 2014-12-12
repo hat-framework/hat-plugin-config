@@ -14,6 +14,7 @@ class userConfigFormWidget extends \classes\Component\widget{
     public function getItens() {
         $this->codUsuario = ($this->codUsuario !== "")?$this->codUsuario:usuario_loginModel::CodUsuario();
         $this->form       = $this->LoadModel('config/form','frm')->getItem($this->formId);
+        $this->cur_action = (defined('CURRENT_ACTION') && in_array(CURRENT_ACTION, array('sform','request')))?CURRENT_ACTION:'form';
         if(!isset($this->form["__type"])){throw new InvalidArgumentException("Não foi setado o tipo para esta configuração!");}
         return array();
     }
@@ -71,9 +72,9 @@ class userConfigFormWidget extends \classes\Component\widget{
     }
     
     private function multipleHeader(){
-        if($this->form['multiple'] != 1){return;}
-        $link1 = $this->LoadResource('html', 'html')->getLink("config/group/form/$this->groupId/$this->formId/grid", false, true);
-        $link2 = $this->LoadResource('html', 'html')->getLink("config/group/form/$this->groupId/$this->formId/form", false, true);
+        if($this->form['multiple'] != 1 || $this->cur_action === 'request'){return;}
+        $link1 = $this->LoadResource('html', 'html')->getLink("config/group/$this->cur_action/$this->groupId/$this->formId/grid", false, true);
+        $link2 = $this->LoadResource('html', 'html')->getLink("config/group/$this->cur_action/$this->groupId/$this->formId/form", false, true);
         $active_form = ($this->action === 'form')?'active':'';
         $active_grid = ($this->action === 'grid')?'active':'';
         echo "<div style='padding:0; margin-bottom:10px;'>
@@ -83,7 +84,7 @@ class userConfigFormWidget extends \classes\Component\widget{
     }
     
     private function edit($dados, $response){
-        if($this->itemId === ""){Redirect("config/group/form/$this->groupId/$this->formId");}
+        if($this->itemId === ""){Redirect("config/group/$this->cur_action/$this->groupId/$this->formId");}
         foreach($response as $item){
             if(!isset($item['cod']) || $this->itemId != $item['cod']){continue;}
             $item = json_decode($item['form_response'],true);
@@ -99,7 +100,6 @@ class userConfigFormWidget extends \classes\Component\widget{
         if(isset($item['form_response']) && !is_array($item['form_response'])){
             $item = json_decode($item['form_response'],true);
         }
-        
         echo "<div style='padding:0px'>";
             echo "<div class='panel panel-info'>";
                 echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
@@ -130,7 +130,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         if($this->form['multiple'] != 1){return;}
         $header = $this->mountHeader($dados);
         $table  = $this->mountGrid($dados, $response);
-        if(empty($table)){Redirect("config/group/form/$this->groupId/$this->formId/form");}
+        if(empty($table)){Redirect("config/group/$this->cur_action/$this->groupId/$this->formId/form");}
         echo "<style>.opcoes{width:60px;}</style>";
         echo "<div style='padding:0px'>";
             echo "<div class='panel panel-info'>";
@@ -191,9 +191,9 @@ class userConfigFormWidget extends \classes\Component\widget{
             $tb[$name] = $this->formatType($name, $dados, $valor, $data);
         }
         if(empty($tb)){return array();}
-        $link1  = $this->html->getLink("config/form/setmain/$this->formId/$this->codUsuario/$key"     , false, true);
-        $link2  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/edit/$key", false, true);
-        $link3  = $this->html->getLink("config/group/form/$this->groupId/$this->formId/drop/$key", false, true);
+        $link1  = $this->html->getLink("config/form/setmain/$this->formId/$this->codUsuario/$key&action=$this->cur_action"     , false, true);
+        $link2  = $this->html->getLink("config/group/$this->cur_action/$this->groupId/$this->formId/edit/$key", false, true);
+        $link3  = $this->html->getLink("config/group/$this->cur_action/$this->groupId/$this->formId/drop/$key", false, true);
         $act          = (!isset($item['main']) || $item['main'] == '0')?
                 "<a href='$link1' class='btn btn-info btn-block'>Tornar Principal</a>":
                 "<a class='btn btn-default btn-block disabled'><i class='fa fa-check'></i> Principal</a>";
