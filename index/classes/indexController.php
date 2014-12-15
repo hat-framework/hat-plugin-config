@@ -17,4 +17,9 @@ class indexController extends \classes\Controller\Controller{
     public function detect(){
         $this->LoadClassFromPlugin('config/form/formDetector', 'fd')->importData();
     }
+    
+    public function migrate(){
+        $this->LoadClassFromPlugin('config/form/formMigration', 'fm')->migrateData();
+    }
+    
 }
