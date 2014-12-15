@@ -26,12 +26,33 @@ class groupController extends \classes\Controller\CController{
         Redirect(LINK ."/form/{$this->vars[0]}/{$this->vars[1]}");
     }
     
+    private function userCanModify($user, $group){
+        if($user === null){return;}
+        $cod_user = usuario_loginModel::CodUsuario();
+        if($user === $cod_user){return;}
+        
+        if($this->LoadModel('usuario/perfil', 'perf')->hasPermissionByName('config/see') === false){
+            throw new classes\Exceptions\AcessDeniedException();
+        }
+        if($this->LoadModel('usuario/login', 'uobj')->UserCanAlter($user) === false){
+            throw new classes\Exceptions\AcessDeniedException("Você não pode alterar os dados de um perfil de usuário com maiores privilégios do que o seu");
+        }
+        
+        if($group === 'acesso'){
+            throw new classes\Exceptions\AcessDeniedException("Você não pode alterar os dados de acesso de outros usuários!");
+        }
+        
+    }
     public function form($link = ""){
-        if(!isset( $this->vars[0])){die('eee');Redirect(LINK ."/index");}
-        if(!isset( $this->vars[1])){die('iooo');Redirect(LINK ."/group/{$this->vars[0]}");}
+        if(!isset( $this->vars[0])){Redirect(LINK ."/index");}
+        if(!isset( $this->vars[1])){Redirect(LINK ."/group/{$this->vars[0]}");}
         $action = isset($this->vars[2])?$this->vars[2]:"listar";
         $id     = isset($this->vars[3])?$this->vars[3]:"";
+        $user   = filter_input(INPUT_GET, '_user');
+        $this->userCanModify($user, $this->vars[0]);
+        
         $this->dropitem($action, $id);
+        $this->registerVar('user'  , ($user === '')?usuario_loginModel::CodUsuario():$user);
         $this->registerVar('group' , $this->vars[0]);
         $this->registerVar('form'  , $this->vars[1]);
         $this->registerVar('action', $action);

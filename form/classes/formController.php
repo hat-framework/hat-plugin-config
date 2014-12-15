@@ -39,8 +39,24 @@ class formController extends \classes\Controller\CController{
     }
     
     private function capture(){
-        $this->form        = (isset($this->vars[0]))?$this->vars[0]: '';
-        $this->cod_usuario = (isset($this->vars[1]))?$this->vars[1]: usuario_loginModel::CodUsuario();
-        $this->id          = (isset($this->vars[2]))?$this->vars[2]: "";
+        $this->form        = (isset($this->vars[0]) && $this->vars[0] != '')?$this->vars[0]: '';
+        $this->cod_usuario = (isset($this->vars[1]) && $this->vars[1] != '')?$this->vars[1]: usuario_loginModel::CodUsuario();
+        $this->id          = (isset($this->vars[2]) && $this->vars[2] != '')?$this->vars[2]: "";
+        $this->security();
+    }
+    
+    private function security(){
+        $user    = filter_input(INPUT_GET, '_user');
+        if($user !== null){$this->cod_usuario = $user;}
+        $coduser = usuario_loginModel::CodUsuario();
+        if($coduser === $this->cod_usuario){return;}
+        //verifica se quem está alterando tem a permissão de alteração de dados
+        if($this->LoadModel('usuario/perfil', 'perf')->hasPermissionByName('config_admin') === true){
+            //verifica se o perfil de usuário do usuário que está alterando os dados
+            //é superior ao do usuário que está tendo seus dados alterados
+            if($this->LoadModel('usuario/login', 'uobj')->UserCanAlter($this->cod_usuario) === true){return;}
+        }
+        die("hahahaha");
+        throw new classes\Exceptions\AcessDeniedException();
     }
 }

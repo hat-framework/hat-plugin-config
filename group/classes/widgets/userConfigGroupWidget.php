@@ -12,7 +12,12 @@ class userConfigGroupWidget extends \classes\Component\widget{
     //protected $title     = "Últimos acessos";
     
     public function getItens() {
-        $groups = $this->model->selecionar(array('cod','title','icon'), '', '','',"ordem ASC");
+        
+        $user    = filter_input(INPUT_GET, '_user');
+        $coduser = usuario_loginModel::CodUsuario();
+        $where =($user !== null && $coduser != $user)?"cod != 'acesso'":"";
+        
+        $groups = $this->model->selecionar(array('cod','title','icon'), $where, '','',"ordem ASC");
         $forms  = $this->LoadModel('config/form', 'frm')->selecionar(array('cod','title','icon','`group`'), '', '','',"ordem ASC");
         $temp   = array();
         foreach($forms as $frm){

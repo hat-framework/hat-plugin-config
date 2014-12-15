@@ -40,6 +40,7 @@ class formDetector extends \classes\Classes\Object{
     private function getGroups(){
         $groups = $this->gr->selecionar(array('cod'));
         $out    = array();
+        if(empty($groups)){return array();}
         foreach($groups as $g){
             $out[$g['cod']] = $g['cod'];
         }

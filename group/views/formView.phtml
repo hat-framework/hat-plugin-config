@@ -9,6 +9,12 @@ $gui->closediv();
 
 $gui->opendiv('filt', 'col-xs-12 col-sm-8 col-md-9 col-lg-9');
     classes\Component\widget::executeWidgets(array(
-       'config/form/widgets/userConfigFormWidget' => array('formId'=>$form,'groupId'=>$group,'action'=>$action,'itemId'=>$itemId),
+       'config/form/widgets/userConfigFormWidget' => array(
+           'formId'=>$form,
+           'groupId'=>$group,
+           'action'=>$action,
+           'itemId'=>$itemId,
+           'codUsuario'=>$user
+        ),
     ));
 $gui->closediv();

@@ -3,7 +3,13 @@ class indexController extends \classes\Controller\Controller{
     public $model_name = 'config/index';
     
     public function index(){
-        Redirect("config/group/form/acesso/acesso_email");
+        if(null === filter_input(INPUT_GET, '_user')){Redirect("config/group/form/acesso/acesso_email");}
+        Redirect("config/group/form/pessoal/pessoal_phone");
+    }
+    
+    public function user(){
+        $this->LoadResource('html', 'html')->getLink("config/group/form/acesso/acesso_email");
+        Redirect("config/group/form/pessoal/pessoal_phone", 0, "", array(), true);
     }
     
     public function request(){
