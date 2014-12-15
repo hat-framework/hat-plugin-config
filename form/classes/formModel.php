@@ -3,9 +3,24 @@ class config_formModel extends \classes\Model\Model{
     public $tabela = "config_form";
     public $pkey   = 'cod';
     
+    public function selecionar($campos = array(), $where = "", $limit = "", $offset = "", $orderby = ""){
+        $out = parent::selecionar($campos, $where, $limit, $offset, $orderby);
+        if(empty($out)){return $out;}
+        foreach($out as &$o){
+            if(!isset($o['form_data'])){break;}
+            if($o['form_data'] == ""){continue;}
+            
+            $o['form_data'] = json_decode($o['form_data'],true);
+            array_walk_recursive($o['form_data'], function(&$item, $key) {
+                if(is_string($item)) {$item = html_entity_decode($item);}
+            });
+        }
+        return $out;
+    }
+    
     public function saveData($post, $form, $cod_usuario, $id = ''){
         $item = $this->getItem($form);
-        $data = json_decode($item['form_data'],true);
+        $data = $item['form_data'];
         if(false === $this->validateData($data, $post)){return false;}
         $this->associaData($data, $post);
         $dados = array('login'=> $cod_usuario,'form'=> $form,'form_response' => $post);
@@ -48,12 +63,24 @@ class config_formModel extends \classes\Model\Model{
     }
     
     public function prepareFormData(&$form){
+        $out = array();
         if(isset($form['form_data']) && is_array($form['form_data'])){
-            $form['form_data'] = json_encode($form['form_data'], JSON_UNESCAPED_UNICODE);
+            array_walk_recursive($form['form_data'], function(&$item, $key) {
+                if(is_string($item)) {$item = htmlentities($item);}
+            });
+            $temp = json_encode($form['form_data']);
+            $form['form_data'] = $temp;
         }
+        if(isset($form['multiple'])){
+            if($form['multiple']     == '0'){$form['multiple'] = 'n';}
+            elseif($form['multiple'] == '1'){$form['multiple'] = 's';}
+        }
+        
         foreach($this->dados as $name => $val){
-            if(isset($val['pkey']) && $val['pkey'] === true){continue;}
-            $form[$name] = isset($form[$name])?$form[$name]:"";
+            $default    = isset($val['default'])?$val['default']:"";
+            $out[$name] = (isset($form[$name]))?$form[$name]:$default;
         }
+        $form = $out;
+        //debugWebmaster($form);echo "<hr/>";
     }
 }

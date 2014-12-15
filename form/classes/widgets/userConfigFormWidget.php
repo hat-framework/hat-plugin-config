@@ -65,9 +65,9 @@ class userConfigFormWidget extends \classes\Component\widget{
     }
     
     private function drawDirectdata(){
-        $data         = json_decode($this->form['form_data'],true);
+        $data         = $this->form['form_data'];
         $item         = $this->LoadModel('config/response', 'resp')->getResponse($this->formId, $this->codUsuario);
-        if($this->form['multiple'] == 1){
+        if($this->isMultiple()){
             $this->action = ($this->action === "")?'grid':$this->action;
             if(empty($item)){$action = 'form';}
             if(!method_exists($this, $this->action)){$this->action = 'grid';}
@@ -91,8 +91,12 @@ class userConfigFormWidget extends \classes\Component\widget{
         return $cached[$perm];
     }
     
+    private function isMultiple(){
+        return ($this->form['__multiple'] == 's');
+    }
+    
     private function multipleHeader(){
-        if($this->form['multiple'] != 1 || $this->cur_action === 'request'){return;}
+        if(!$this->isMultiple() || $this->cur_action === 'request'){return;}
         if(!$this->checkPermission('admin')){return;}
         $link1 = $this->LoadResource('html', 'html')->getLink("config/group/$this->cur_action/$this->groupId/$this->formId/grid", false, true);
         $link2 = $this->LoadResource('html', 'html')->getLink("config/group/$this->cur_action/$this->groupId/$this->formId/form", false, true);
@@ -108,7 +112,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         if($this->itemId === ""){Redirect("config/group/$this->cur_action/$this->groupId/$this->formId");}
         foreach($response as $item){
             if(!isset($item['cod']) || $this->itemId != $item['cod']){continue;}
-            $item = json_decode($item['form_response'],true);
+            $item = $item['form_response'];
             break;
         }
         $this->form($dados, array($item));
@@ -116,10 +120,10 @@ class userConfigFormWidget extends \classes\Component\widget{
     
     private function form($data, $item){
         if(!is_array($data) || empty($data)){return;}
-        $item = ($this->form['multiple'] == '1' && $this->action === 'form')?array():array_shift($item);
+        $item = ($this->isMultiple() && $this->action === 'form')?array():array_shift($item);
         $key  = (isset($item['cod']))?$item['cod']:$this->itemId;
         if(isset($item['form_response']) && !is_array($item['form_response'])){
-            $item = json_decode($item['form_response'],true);
+            $item = $item['form_response'];
         }
         echo "<div style='padding:0px'>";
             echo "<div class='panel panel-info'>";
@@ -132,7 +136,7 @@ class userConfigFormWidget extends \classes\Component\widget{
     }
     
     private function grid($dados, $response){
-        if($this->form['multiple'] != 1){return;}
+        if(!$this->isMultiple()){return;}
         if(!$this->checkPermission('see')){throw new classes\Exceptions\AcessDeniedException();}
         $header = $this->mountHeader($dados);
         $table  = $this->mountGrid($dados, $response);
@@ -198,7 +202,7 @@ class userConfigFormWidget extends \classes\Component\widget{
     private function getRow($item, $dados){
         $tb   = array();
         $key  = $item['cod'];
-        $data = json_decode($item['form_response'],true);
+        $data = $item['form_response'];
         foreach($data as $name => $valor){
             if(!array_key_exists($name, $dados)){continue;}
             $tb[$name] = $this->formatType($name, $dados, $valor, $data);

@@ -88,9 +88,13 @@ class config_formData extends \classes\Model\DataModel{
         
         'multiple' => array(
 	    'name'     => 'Multiple',
-	    'type'     => 'bit',
+	    'type'     => 'enum',
 	    'notnull' => true,
-            'default' => 0
+            'default' => 'n',
+            'options' => array(
+                's' => 'Multiplo',
+                'n' => "Não"
+            )
         ),
         
          'ordem' => array(

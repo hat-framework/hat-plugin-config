@@ -14,8 +14,12 @@ class config_responseModel extends \classes\Model\Model{
         foreach($this->post['form_response'] as &$resp){
             if(substr($resp, 0, 5) === "FUNC_"){$resp = str_replace('FUNC_', '', $resp);}
         }
-        if(isset($this->post['form_response'])){
-            $this->post['form_response'] = json_encode($this->post['form_response'], JSON_UNESCAPED_UNICODE);
+        if(isset($this->post['form_response']) && is_array($this->post['form_response'])){
+            array_walk_recursive($this->post['form_response'], function(&$item, $key) {
+                if(is_string($item)) {$item = htmlentities($item);}
+            });
+            $temp = json_encode($this->post['form_response']);
+            $this->post['form_response'] = $temp;
         }
         return parent::validate();
     }
@@ -60,7 +64,6 @@ class config_responseModel extends \classes\Model\Model{
         if(!empty($result)){
             foreach($result as $res){
                 if(!isset($out[$res['form']])){$out[$res['form']] = array();}
-                $res['form_response']          = json_decode($res['form_response'], true);
                 $res['form_response']['_main'] = $res['main'];
                 $out[$res['form']][] = $res['form_response'];
             }
@@ -77,14 +80,18 @@ class config_responseModel extends \classes\Model\Model{
         if(!empty($exist)){Redirect("config/group/request/&_request=$item&_credirect=$link");}
         return $out;
     }
+    
+    public function selecionar($campos = array(), $where = "", $limit = "", $offset = "", $orderby = "") {
+        $out = parent::selecionar($campos, $where, $limit, $offset, $orderby);
+        foreach($out as &$o){
+            if(!isset($o['form_response'])){break;}
+            if($o['form_response'] == ""){continue;}
+            
+            $o['form_response'] = json_decode($o['form_response'],true);
+            array_walk_recursive($o['form_response'], function(&$item, $key) {
+                if(is_string($item)) {$item = html_entity_decode($item);}
+            });
+        }
+        return $out;
+    }
 }
-
-/**
- * 
- http://hat/config/group/request/pessoal/pessoal_phone/form
- * &_redirect=config/group/request/pessoal/pessoal_address
- * &_index=1
- * &_request=cGVzc29hbF9waG9uZS1wZXNzb2FsX2FkZHJlc3MtcGVzc29hbF9lbWFpbA==
- * &_request=cGVzc29hbF9waG9uZS1wZXNzb2FsX2FkZHJlc3MtcGVzc29hbF9lbWFpbA==
- * &_credirect=Y29uZmlnL2luZGV4L3JlcXVlc3Qv
- */
