@@ -83,6 +83,7 @@ class config_responseModel extends \classes\Model\Model{
     
     public function selecionar($campos = array(), $where = "", $limit = "", $offset = "", $orderby = "") {
         $out = parent::selecionar($campos, $where, $limit, $offset, $orderby);
+        if(empty($out)){return array();}
         foreach($out as &$o){
             if(!isset($o['form_response'])){break;}
             if($o['form_response'] == ""){continue;}

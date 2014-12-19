@@ -36,6 +36,7 @@ class config_formModel extends \classes\Model\Model{
         if(!is_array($forms)){$forms = array($forms);}
         $in  = implode("','", $forms);
         $res = $this->selecionar(array('cod'), "cod IN('$in')");
+        if(empty($res)){return array();}
         $out = array();
         foreach($res as $r){
             $out[] = $r['cod'];
