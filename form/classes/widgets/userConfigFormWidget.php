@@ -12,6 +12,16 @@ class userConfigFormWidget extends \classes\Component\widget{
     //protected $order     = "user_uacesso DESC";
     //protected $title     = "Últimos acessos";
     
+    public function __construct(){
+        parent::__construct();
+        $this->phclass  = \classes\Classes\Template::getClass('panel', array(
+            'container'   =>'panel panel-info', 
+            'header'      =>'panel-heading',
+            'body'        =>'panel-body',
+            'panel_class' => 'info'
+        ));
+    }
+    
     public function getItens() {
         $this->codUsuario = (!in_array($this->codUsuario, array(null, "")))?$this->codUsuario:usuario_loginModel::CodUsuario();
         $this->form       = $this->LoadModel('config/form','frm')->getItem($this->formId);
@@ -104,7 +114,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         $active_grid = ($this->action === 'grid')?'active':'';
         echo "<div style='padding:0; margin-bottom:10px;'>
                     <a href='$link1' class='btn btn-default btn-lg $active_grid'><i class='fa fa-list'></i> Listar</a>
-                    <a href='$link2' class='btn btn-info btn-lg $active_form'><i class='fa fa-plus'></i> Adicionar</a>
+                    <a href='$link2' class='btn btn-{$this->phclass['panel_class']} btn-lg $active_form'><i class='fa fa-plus'></i> Adicionar</a>
               </div>";
     }
     
@@ -126,9 +136,9 @@ class userConfigFormWidget extends \classes\Component\widget{
             $item = $item['form_response'];
         }
         echo "<div style='padding:0px'>";
-            echo "<div class='panel panel-info'>";
-                echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
-                echo "<div class='panel-body'>";
+            echo "<div class='{$this->phclass['container']}'>";
+                echo "<div class='{$this->phclass['header']}'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
+                echo "<div class='{$this->phclass['body']}'>";
                     $this->LoadResource('formulario', 'frm')->NewForm($data,$item,array(),true, "config/form/save/$this->formId/$this->codUsuario/$key");
                 echo "</div>";
             echo "</div>";
@@ -146,12 +156,12 @@ class userConfigFormWidget extends \classes\Component\widget{
         }
         echo "<style>.opcoes{width:60px;}</style>";
         echo "<div style='padding:0px'>";
-            echo "<div class='panel panel-info'>";
-                echo "<div class='panel-heading'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
-                echo "<div class='panel-body'>";
+            echo "<div class='{$this->phclass['container']}'>";
+                echo "<div class='{$this->phclass['header']}'><h3 class='title panel-title'><i class='{$this->form['icon']}'></i>{$this->form['title']}</h3></div>";
+                echo "<div class='{$this->phclass['body']}'>";
                     if(!empty($table)){
                         foreach($table as $arr){
-                            echo '<div class="bs-callout bs-callout-info col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-top: 0;">';
+                            echo '<div class="bs-callout bs-callout-'.$this->phclass['panel_class'].' col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-top: 0;">';
                                 echo "<table class='table table-hover'>";
                                 foreach($header as $name){
                                     $val = array_shift($arr);
