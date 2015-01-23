@@ -132,7 +132,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         if(!is_array($data) || empty($data)){return;}
         $item = ($this->isMultiple() && $this->action === 'form')?array():array_shift($item);
         $key  = (isset($item['cod']))?$item['cod']:$this->itemId;
-        if(isset($item['form_response']) && !is_array($item['form_response'])){
+        if(isset($item['form_response']) && is_array($item['form_response'])){
             $item = $item['form_response'];
         }
         echo "<div style='padding:0px'>";

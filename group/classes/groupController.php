@@ -68,43 +68,6 @@ class groupController extends \classes\Controller\CController{
         $this->form(LINK ."/sform");
     }
     
-    /*public function request(){
-        $data         = base64_decode(filter_input(INPUT_GET, '_request'));
-        $credirect    = base64_decode(filter_input(INPUT_GET, '_credirect'));
-        $url          = filter_input(INPUT_GET, 'url');
-        $redirect     = filter_input(INPUT_GET, '_redirect');
-        $index        = filter_input(INPUT_GET, '_index');
-        $request_data = explode("-",$data);
-        if($index == false){$index = 0;}
-        
-        //se o dado que está sendo requisitado na página atual existe
-        if(isset($request_data[$index])){
-            //se existe o próximo dado a ser preenchido pelo usuário
-            if(isset($request_data[$index+1])){
-                $temp = explode("_", $request_data[$index+1]);
-                $form = "config/group/request/{$temp[0]}/{$request_data[$index+1]}";
-            }else{$form = $credirect;}
-        
-            $temp   = explode("_", $request_data[$index]);
-            $action = "config/group/request/{$temp[0]}/{$request_data[$index]}/form";
-            if($redirect == false){
-                Redirect("$action&_redirect=$form&_index=1&_request=".filter_input(INPUT_GET, '_request'));
-            }
-            
-            $result = $this->LoadModel('config/response', 'rep')->getResponse($request_data[$index], usuario_loginModel::CodUsuario(), "", 1);
-            if(!empty($result) || in_array($url, array("$redirect/form", $redirect))){
-                if(!empty($result)){
-                    $action = $form;
-                    $index++;
-                }
-                Redirect("$action&_redirect=$form/form&_index=$index&_request=".filter_input(INPUT_GET, '_request'));
-            }
-            
-        }else{Redirect($credirect);}
-        $this->registerVar("alert", 'Preencha o formulário abaixo para prosseguir');
-        $this->form(LINK ."/sform");
-    }*/
-    
     public function request(){
         $data         = base64_decode(filter_input(INPUT_GET, '_request'));
         $credirect    = base64_decode(filter_input(INPUT_GET, '_credirect'));
