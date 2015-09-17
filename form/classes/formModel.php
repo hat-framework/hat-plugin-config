@@ -84,4 +84,15 @@ class config_formModel extends \classes\Model\Model{
         $form = $out;
         //debugWebmaster($form);echo "<hr/>";
     }
+    
+    public function getFormTitles($formids){
+        $in  = implode("','", $formids);
+        $arr = $this->selecionar(array('title', 'cod'), "cod IN('$in')");
+        $out = array();
+        foreach($arr as $temp){
+            $out[$temp['cod']] = $temp['title'];
+        }
+        
+        return $out;
+    }
 }
