@@ -84,15 +84,46 @@ class config_responseModel extends \classes\Model\Model{
     public function selecionar($campos = array(), $where = "", $limit = "", $offset = "", $orderby = "") {
         $out = parent::selecionar($campos, $where, $limit, $offset, $orderby);
         if(empty($out)){return array();}
-        foreach($out as &$o){
+        foreach($out as $i => &$o){
             if(!isset($o['form_response'])){break;}
             if($o['form_response'] == ""){continue;}
             
-            $o['form_response'] = json_decode($o['form_response'],true);
+            $temp = json_decode($o['form_response'],true);
+            if($temp === null){
+                $temp = $this->manualDecode($o['form_response']);
+                if(empty($temp)){
+                    //print_rh($temp);
+                    //print_rh($o['form_response']);
+                    unset($o[$i]);
+                    continue;
+                }
+            }
+            $o['form_response'] = $temp;
             array_walk_recursive($o['form_response'], function(&$item, $key) {
                 if(is_string($item)) {$item = html_entity_decode($item);}
             });
         }
         return $out;
     }
+    
+            private function manualDecode($string){
+                $e     = explode("{"  , $string);
+                $ee    = explode("}"  , $e[1]);
+                $arr   = explode('","', $ee[0]);
+                $out   = array();
+                $count = count($arr);
+                foreach($arr as $i => $a){
+                    $temp = explode('":"', $a);
+                    if($i == 0 && $temp[0][0] == '"'){
+                        $temp[0][0] = "";
+                    }
+                    
+                    if($i == $count-1 && $temp[1][strlen($temp[1])-1] == '"'){
+                        $temp[1][strlen($temp[1])-1] = '';
+                    }
+                    
+                    $out[$temp[0]] = $temp[1];
+                }
+                return $out;
+            }
 }
