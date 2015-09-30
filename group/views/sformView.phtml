@@ -1,3 +1,11 @@
+<ol class="breadcrumb">
+<?php
+    foreach($steps as $key => $step){
+        if($current_step === $key){$step = "<b>$step</b>";}
+        echo "<li>$step</li>";
+    }
+?>
+</ol>
 <?php
 
 $gui = new \classes\Component\GUI();

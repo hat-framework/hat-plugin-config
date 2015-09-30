@@ -81,9 +81,13 @@ class groupController extends \classes\Controller\CController{
         $result = $this->LoadModel('config/response', 'resp');
         if($data === ""){Redirect($credirect);}
         $request_data = explode("-",$data);
+        $steps        = $this->LoadModel('config/form', 'form')->getFormTitles($request_data);
+        $this->registerVar("steps", $steps);
+        
         foreach($request_data as $req){
             $result     = $this->resp->getResponse($req, usuario_loginModel::CodUsuario(), "", 1);
             if(!empty($result)){continue;}
+            $this->registerVar('current_step', $req);
             $temp       = explode("_", $req);
             $this->vars = array($temp[0], $req, 'form');
             return $this->form(LINK ."/sform");
