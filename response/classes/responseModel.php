@@ -55,31 +55,50 @@ class config_responseModel extends \classes\Model\Model{
      * @return array empty array if data doesn't exists
      */
     public function requestData($formsid, $user = ""){
-        if($user === ""){$user = usuario_loginModel::CodUsuario();}
-        if(!is_array($formsid)){$formsid = array($formsid);}
-        $query  = implode("','", $formsid);
-        $result = $this->selecionar(array('form_response','main','form'), "login='$user' AND form IN('$query')");
         
-        $out    = array();
-        if(!empty($result)){
-            foreach($result as $res){
-                if(!isset($out[$res['form']])){$out[$res['form']] = array();}
-                $res['form_response']['_main'] = $res['main'];
-                $out[$res['form']][] = $res['form_response'];
-            }
-        }
-        $need = array();
-        foreach($formsid as $form){
-            if(!array_key_exists($form, $out)){
-                $need[] = $form;
-            }
-        }
-        $exist = $this->LoadModel('config/form', 'form')->getExistent($need);
-        $link  = base64_encode($this->LoadResource('html','html')->getLink(CURRENT_URL, false, true));
-        $item  = base64_encode(implode("-", $exist));
-        if(!empty($exist)){Redirect("config/group/request/&_request=$item&_credirect=$link");}
+        $result = $this->getData($formsid, $user);
+        $out    = $this->prepareOut($result);        
+        $need   = $this->getNeeded($formsid, $out);
+        if(empty($need)){return $out;}
+        
+        $this->redirectNeeded($need);
         return $out;
     }
+    
+            private function getData($formsid, $user = ""){
+                if($user === ""){$user = usuario_loginModel::CodUsuario();}
+                if(!is_array($formsid)){$formsid = array($formsid);}
+                $query  = implode("','", $formsid);
+                return $this->selecionar(array('form_response','main','form'), "login='$user' AND form IN('$query')");
+            }
+    
+            private function prepareOut($result){
+                $out    = array();
+                if(empty($result)){return array();}
+                foreach($result as $res){
+                    if(!isset($out[$res['form']])){$out[$res['form']] = array();}
+                    $res['form_response']['_main'] = $res['main'];
+                    $out[$res['form']][] = $res['form_response'];
+                }
+                return $out;
+            }
+    
+            private function getNeeded($formsid, $out){
+                $need = array();
+                foreach($formsid as $form){
+                    if(!array_key_exists($form, $out)){
+                        $need[] = $form;
+                    }
+                }
+                return $need;
+            }
+            
+            private function redirectNeeded($need){
+                $exist = $this->LoadModel('config/form', 'form')->getExistent($need);
+                $link  = base64_encode($this->LoadResource('html','html')->getLink(CURRENT_URL, false, true));
+                $item  = base64_encode(implode("-", $exist));
+                if(!empty($exist)){Redirect("config/group/request/&_request=$item&_credirect=$link");}
+            }
     
     public function selecionar($campos = array(), $where = "", $limit = "", $offset = "", $orderby = "") {
         $out = parent::selecionar($campos, $where, $limit, $offset, $orderby);

@@ -244,6 +244,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         extract($dados[$name]['fkey']);
         if($this->LoadModel($model, 'md', false) === null){return $valor;}
         $select = $this->md->selecionar($keys, "{$keys[0]}='$valor'", 1);
+        if(empty($select) || !isset($select[0])){return;}
         $link   = $this->html->getLink("$model/show/{$select[0][$keys[0]]}");
         return "<a href='$link' target='_BLANK$link'>{$select[0][$keys[1]]}</a>";
     }
