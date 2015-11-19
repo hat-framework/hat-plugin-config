@@ -73,6 +73,7 @@ class groupController extends \classes\Controller\CController{
         $credirect    = base64_decode(filter_input(INPUT_GET, '_credirect'));
         $redirect     = filter_input(INPUT_GET, '_redirect');
         if($redirect == false){Redirect("config/group/request&_redirect=config/group/request&_request=".filter_input(INPUT_GET, '_request'));}
+        $request      = array_shift($this->vars);
         
         //registra o alerta
         $this->registerVar("alert", 'Preencha o formulário abaixo para prosseguir');
@@ -87,6 +88,9 @@ class groupController extends \classes\Controller\CController{
         foreach($request_data as $req){
             $result     = $this->resp->getResponse($req, usuario_loginModel::CodUsuario(), "", 1);
             if(!empty($result)){continue;}
+            if($request != $req){
+                Redirect("config/group/request/$req&_redirect=config/group/request&_request=".filter_input(INPUT_GET, '_request'));
+            }
             $this->registerVar('current_step', $req);
             $temp       = explode("_", $req);
             $this->vars = array($temp[0], $req, 'form');

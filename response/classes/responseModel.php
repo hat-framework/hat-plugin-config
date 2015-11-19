@@ -55,13 +55,12 @@ class config_responseModel extends \classes\Model\Model{
      * @return array empty array if data doesn't exists
      */
     public function requestData($formsid, $user = ""){
-        
         $result = $this->getData($formsid, $user);
         $out    = $this->prepareOut($result);        
         $need   = $this->getNeeded($formsid, $out);
         if(empty($need)){return $out;}
         
-        $this->redirectNeeded($need);
+        $this->redirectNeeded($formsid);
         return $out;
     }
     
@@ -106,43 +105,49 @@ class config_responseModel extends \classes\Model\Model{
         foreach($out as $i => &$o){
             if(!isset($o['form_response'])){break;}
             if($o['form_response'] == ""){continue;}
-            
-            $temp = json_decode($o['form_response'],true);
-            if($temp === null){
-                $temp = $this->manualDecode($o['form_response']);
-                if(empty($temp)){
-                    //print_rh($temp);
-                    //print_rh($o['form_response']);
-                    unset($o[$i]);
-                    continue;
-                }
-            }
-            $o['form_response'] = $temp;
-            array_walk_recursive($o['form_response'], function(&$item, $key) {
-                if(is_string($item)) {$item = html_entity_decode($item);}
-            });
+            $temp = $this->getTemp($o, $i);
+            if($temp === false){continue;}
+            $this->prepareForm($o, $temp);
         }
         return $out;
     }
-    
-            private function manualDecode($string){
-                $e     = explode("{"  , $string);
-                $ee    = explode("}"  , $e[1]);
-                $arr   = explode('","', $ee[0]);
-                $out   = array();
-                $count = count($arr);
-                foreach($arr as $i => $a){
-                    $temp = explode('":"', $a);
-                    if($i == 0 && $temp[0][0] == '"'){
-                        $temp[0][0] = "";
-                    }
-                    
-                    if($i == $count-1 && $temp[1][strlen($temp[1])-1] == '"'){
-                        $temp[1][strlen($temp[1])-1] = '';
-                    }
-                    
-                    $out[$temp[0]] = $temp[1];
-                }
-                return $out;
+            private function prepareForm(&$o, $temp){
+                $o['form_response'] = $temp;
+                array_walk_recursive($o['form_response'], function(&$item, $key) {
+                    if(is_string($item)) {$item = html_entity_decode($item);}
+                });
             }
+        
+            private function getTemp($o, $i){
+                $temp = json_decode($o['form_response'],true);
+                if($temp === null){
+                    $temp = $this->manualDecode($o['form_response']);
+                    if(empty($temp)){
+                        unset($o[$i]);
+                        return false;
+                    }
+                }
+                return $temp;
+            }
+    
+                    private function manualDecode($string){
+                        $e     = explode("{"  , $string);
+                        $ee    = explode("}"  , $e[1]);
+                        $arr   = explode('","', $ee[0]);
+                        $out   = array();
+                        $count = count($arr);
+                        foreach($arr as $i => $a){
+                            $temp = explode('":"', $a);
+                            if($i == 0 && $temp[0][0] == '"'){
+                                $temp[0][0] = "";
+                            }
+
+                            if($i == $count-1 && $temp[1][strlen($temp[1])-1] == '"'){
+                                $temp[1][strlen($temp[1])-1] = '';
+                            }
+
+                            $out[$temp[0]] = $temp[1];
+                        }
+                        return $out;
+                    }
 }
