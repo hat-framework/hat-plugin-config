@@ -54,13 +54,13 @@ class config_responseModel extends \classes\Model\Model{
      * @param int $user cod of user
      * @return array empty array if data doesn't exists
      */
-    public function requestData($formsid, $user = ""){
+    public function requestData($formsid, $user = "", $redirect = true){
         $result = $this->getData($formsid, $user);
         $out    = $this->prepareOut($result);        
         $need   = $this->getNeeded($formsid, $out);
         if(empty($need)){return $out;}
         
-        $this->redirectNeeded($formsid);
+        if($redirect){$this->redirectNeeded($formsid);}
         return $out;
     }
     
