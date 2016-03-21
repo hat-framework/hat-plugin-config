@@ -16,7 +16,7 @@ class config_responseModel extends \classes\Model\Model{
         }
         if(isset($this->post['form_response']) && is_array($this->post['form_response'])){
             array_walk_recursive($this->post['form_response'], function(&$item, $key) {
-                if(is_string($item)) {$item = htmlentities($item);}
+                if(is_string($item)) {$item = htmlentities(GetPlainName($item, false, true, false));}
             });
             $temp = json_encode($this->post['form_response']);
             $this->post['form_response'] = $temp;
