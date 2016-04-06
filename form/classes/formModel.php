@@ -67,9 +67,9 @@ class config_formModel extends \classes\Model\Model{
         $out = array();
         if(isset($form['form_data']) && is_array($form['form_data'])){
             array_walk_recursive($form['form_data'], function(&$item, $key) {
-                if(is_string($item)) {$item = htmlentities($item);}
+                if(is_string($item)) {$item = @htmlentities($item);}
             });
-            $temp = json_encode($form['form_data']);
+            $temp = @json_encode($form['form_data']);
             $form['form_data'] = $temp;
         }
         if(isset($form['multiple'])){
