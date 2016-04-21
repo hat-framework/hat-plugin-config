@@ -68,7 +68,7 @@ class groupController extends \classes\Controller\CController{
         $this->form(LINK ."/sform");
     }
     
-    public function request(){
+    public function request($view = 'sform'){
         $data         = base64_decode(filter_input(INPUT_GET, '_request'));
         $credirect    = base64_decode(filter_input(INPUT_GET, '_credirect'));
         $redirect     = filter_input(INPUT_GET, '_redirect');
@@ -76,7 +76,7 @@ class groupController extends \classes\Controller\CController{
         $request      = array_shift($this->vars);
         
         //registra o alerta
-        $this->registerVar("alert", 'Preencha o formulário abaixo para prosseguir');
+        $this->registerVar("info", 'Preencha o formulário abaixo para prosseguir');
         
         //se o dado que está sendo requisitado na página atual existe
         $result = $this->LoadModel('config/response', 'resp');
@@ -94,7 +94,7 @@ class groupController extends \classes\Controller\CController{
             $this->registerVar('current_step', $req);
             $temp       = explode("_", $req);
             $this->vars = array($temp[0], $req, 'form');
-            return $this->form(LINK ."/sform");
+            return $this->form(LINK ."/$view");
         }
         
         //redireciona para a página inicial, que chamou esta página
