@@ -48,6 +48,113 @@ class config_responseModel extends \classes\Model\Model{
         ");
     }
     
+    public function requestUniqueData($user = "", $titles = false){
+        $result = $this->getUniqueData($user);
+        $forms  = $this->getAllForms();
+        $out    = $this->prepareUniqueOut($forms, $result, $titles);
+        return $out;
+    }
+    
+            private function getUniqueData($user = ""){
+                if($user === ""){$user = usuario_loginModel::CodUsuario();}
+                return $this->selecionar(array('form_response','main','form'), "login='$user'");
+            }
+            
+            private function getAllForms(){
+                $all = $this->LoadModel('config/form', 'frm')->selecionar();
+                $out = array();
+                foreach($all as $a){
+                    $out[$a['cod']] = $a;
+                }
+                return $out;
+            }
+            
+            private function prepareUniqueOut($forms, $result, $titles = false){
+                $out    = array();
+                if(empty($result)){return array();}
+                foreach($result as $res){
+                    if($res['main'] != true){continue;}
+                    $key  = $res['form'];
+                    $res  = $res['form_response'];
+                    $form = (array_key_exists($key, $forms))?$forms[$key]['form_data']:array();
+                    foreach($res as $k => $v){
+                        $this->processData($form, $k, $key, $v, $out, $titles);
+                    }
+                }
+                return $out;
+            }
+            
+                    private function processData($form, $k,$key,$v,&$out, $titles){
+                        $out_key = ($titles == true)?"{$key}_{$k}":$form[$k]['name'];
+                        if(!isset($form[$k])){
+                            $out[$out_key] = $v;
+                            return;
+                        }
+                        
+                        if(isset($form[$k]['fkey'])){
+                            $out[$out_key] = $this->type_fkey($v, $form[$k]);
+                            return;
+                        }
+                        
+                        if(isset($form[$k]['especial'])){
+                            $method = "especial_{$form[$k]['especial']}";
+                            if(method_exists($this, $method)){
+                                $out[$out_key] = $this->$method($v, $form[$k]);
+                                return;
+                            }
+                        }
+                        
+                        $method = "type_{$form[$k]['type']}";
+                        if(!method_exists($this, $method)){
+                            $out[$out_key] = $v;
+                            return;
+                        }
+                        $out[$out_key] = $this->$method($v, $form[$k]);
+                    }
+                    
+                            private function type_fkey($value, $form_data){
+                                $temp = $this->LoadModel($form_data['fkey']['model'], 'md')->selecionar(
+                                    $form_data['fkey']['keys'], "{$form_data['fkey']['keys'][0]}='$value'"
+                                );
+                                if(empty($temp)){return $value;}
+                                array_shift($temp[0]);
+                                $out = array_shift($temp[0]);
+                                foreach($temp[0] as $t){
+                                    $out .= " ({$t}) ";
+                                }
+                                return $out;
+                            }
+                        
+                            private function type_date($value, $form_data){
+                                return \classes\Classes\timeResource::getDbDate($value);
+                            }
+
+                            private function type_enum($value, $form_data){
+                                return(!array_key_exists($value, $form_data['options']))?$value:$form_data['options'][$value];
+                            }
+                            
+                            private function type_decimal($value, $form_data){
+                                $e = explode(',', $form_data['size']);
+                                return number_format($value, $e[1], ',', '.');
+                            }
+                            
+                            private function especial_cpf($value, $form_data){
+                                return mask($value, "###.###.###-##");
+                            }
+                            
+                            private function especial_telefone($value, $form_data){
+                                return preg_replace('/(\d{2})(\d{4})(\d*)/', '($1) $2-$3', $value);
+                            }
+                            
+                            private function especial_monetary($value, $form_data){
+                                $e = explode(',', $form_data['size']);
+                                return "R$ " .number_format($value, $e[1], ',', '.');
+                            }
+                            
+                            private function especial_cep($value, $form_data){
+                                return mask($value, "#####-###");
+                            }
+    
     /**
      * Request user data
      * @param mixed $formsid can be array or string
