@@ -85,11 +85,11 @@ class config_responseModel extends \classes\Model\Model{
             }
             
                     private function processData($form, $k,$key,$v,&$out, $titles){
-                        $out_key = ($titles != true)?"{$key}_{$k}":$form[$k]['name'];
                         if(!isset($form[$k])){
-                            $out[$out_key] = $v;
+                            $out["{$key}_{$k}"] = $v;
                             return;
                         }
+                        $out_key = ($titles != true)?"{$key}_{$k}":$form[$k]['name'];
                         
                         if(isset($form[$k]['fkey'])){
                             $out[$out_key] = $this->type_fkey($v, $form[$k]);
