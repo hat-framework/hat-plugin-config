@@ -85,7 +85,7 @@ class config_responseModel extends \classes\Model\Model{
             }
             
                     private function processData($form, $k,$key,$v,&$out, $titles){
-                        $out_key = ($titles == true)?"{$key}_{$k}":$form[$k]['name'];
+                        $out_key = ($titles != true)?"{$key}_{$k}":$form[$k]['name'];
                         if(!isset($form[$k])){
                             $out[$out_key] = $v;
                             return;
