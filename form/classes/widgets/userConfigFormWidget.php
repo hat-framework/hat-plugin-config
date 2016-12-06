@@ -148,9 +148,9 @@ class userConfigFormWidget extends \classes\Component\widget{
     private function grid($dados, $response){
         if(!$this->isMultiple()){return;}
         if(!$this->checkPermission('see')){throw new classes\Exceptions\AcessDeniedException();}
+		$this->LoadResource('formulario/format', 'format');
         $header = $this->mountHeader($dados);
         $table  = $this->mountGrid($dados, $response);
-        
         if(empty($table)){
             if($this->checkPermission('admin')){Redirect("config/group/$this->cur_action/$this->groupId/$this->formId/form");}
         }
@@ -163,7 +163,7 @@ class userConfigFormWidget extends \classes\Component\widget{
                         foreach($table as $arr){
                             echo '<div class="bs-callout bs-callout-'.$this->phclass['panel_class'].' col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-top: 0;">';
                                 echo "<table class='table table-hover'>";
-                                foreach($header as $name){
+                                foreach($header as $n => $name){
                                     $val = array_shift($arr);
                                     if(trim($val) === ""){continue;}
                                     echo "<tr>";
@@ -186,9 +186,9 @@ class userConfigFormWidget extends \classes\Component\widget{
     
     private function mountHeader($dados){
         $header = array();
-        foreach($dados as $arr){
+        foreach($dados as $name => $arr){
             if(!isset($arr['name'])) {continue;}
-            $header[] = $arr['name'];
+            $header[$name] = $arr['name'];
         }
         //$header[] = "Principal"; 
         if(true === $this->checkPermission('see')){$header[] = ""; }
