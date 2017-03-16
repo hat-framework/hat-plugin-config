@@ -71,7 +71,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         $method    = $this->form['method'];
         $this->LoadComponent($component, 'comp');
         if(!method_exists($this->comp, $method)){throw new InvalidArgumentException("O método $method não existe no componente $component!");}
-        $this->comp->$method();
+        $this->comp->$method($this->codUsuario);
     }
     
     private function drawDirectdata(){
