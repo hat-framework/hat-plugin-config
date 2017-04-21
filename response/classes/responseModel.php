@@ -63,6 +63,7 @@ class config_responseModel extends \classes\Model\Model{
             private function getAllForms(){
                 $all = $this->LoadModel('config/form', 'frm')->selecionar();
                 $out = array();
+                if(!is_array($all) || empty($all)){return array();}
                 foreach($all as $a){
                     $out[$a['cod']] = $a;
                 }
