@@ -91,7 +91,7 @@ class userConfigFormWidget extends \classes\Component\widget{
         $user = filter_input(INPUT_GET, '_user');
         if($user === null){return true;}
         if($user === usuario_loginModel::CodUsuario()){return true;}
-        if(false === $this->LoadModel('usuario/perfil', 'perf')->hasPermissionByName("config/$perm")){return false;}
+        if(false === $this->LoadModel('usuario/perfil', 'perf')->hasPermissionByName("config_$perm")){return false;}
         return $this->LoadModel('usuario/login', 'uobj')->UserCanAlter($user);
     }
     

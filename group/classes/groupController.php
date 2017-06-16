@@ -31,7 +31,7 @@ class groupController extends \classes\Controller\CController{
         $cod_user = usuario_loginModel::CodUsuario();
         if($user === $cod_user){return;}
         
-        if($this->LoadModel('usuario/perfil', 'perf')->hasPermissionByName('config/see') === false){
+        if($this->LoadModel('usuario/perfil', 'perf')->hasPermissionByName('config_see') === false){
             throw new classes\Exceptions\AcessDeniedException();
         }
         if($this->LoadModel('usuario/login', 'uobj')->UserCanAlter($user) === false){
